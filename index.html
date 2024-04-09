@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Access-Control-Allow-Origin" content="*">
+  <title>DIGITAL MEDIA</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+  <h1>DIGITAL STAR</h1>
+  <div id="game-container">
+    <div id="burger-clicker">
+      <img src="l.png" id="burger" alt="Burger" width="300px">
+      <p id="score">Score: <span id="scoreValue">0</span></p>
+    </div>
+    <div id="upgrades">
+      <h2>Améliorations</h2>
+      <div class="upgrade" onclick="buyUpgrade('double-clic')">Double Clic (10 points)</div>
+      <div class="upgrade" onclick="buyUpgrade('plus-large')"> Plus 5 per clic (200 points)</div>
+      <div class="upgrade" onclick="buyUpgrade('extra-fromage')"> Plus 10 per clic (3000 points)</div>
+    </div>
+  </div>
+
+  <div id="citation-en-gros"></div>
+  <div id="leaderboard">
+    <h2>Malthus Nana E4 CCSN LYON</h2>
+    <ol id="leaderboardList"></ol>
+  </div>
+  
+  <script>
+    let score = 0;
+    let clickValue = 1;
+    let clickCounter = 0;
+
+    const burgerImg = document.getElementById('burger');
+    const scoreDisplay = document.getElementById('scoreValue');
+    const citationEnGros = document.getElementById('citation-en-gros');
+
+    function buyUpgrade(upgradeType) {
+      let upgradeCost;
+      switch (upgradeType) {
+        case 'double-clic':
+          upgradeCost = 10;
+          clickValue *= 2;
+          break;
+        case 'plus-large':
+          upgradeCost = 200;
+          clickValue += 5;
+          break;
+        case 'extra-fromage':
+          upgradeCost = 3000;
+          clickValue += 10;
+          break;
+        default:
+          upgradeCost = 0;
+      }
+
+      if (score >= upgradeCost) {
+        score -= upgradeCost;
+        scoreDisplay.textContent = score;
+        updateScoreValue();
+      } else {
+        alert('Vous n\'avez pas assez de points pour acheter cette amélioration.');
+      }
+    }
+
+    function updateScoreValue() {
+      scoreDisplay.textContent = score;
+    }
+
+    burgerImg.addEventListener('click', () => {
+      burgerImg.classList.add('clicked');
+      setTimeout(() => {
+        burgerImg.classList.remove('clicked');
+      }, 200);
+      score += clickValue;
+      updateScoreValue();
+      clickCounter++;
+
+      if (clickCounter % 30 === 0) {
+        printRandomQuote();
+        citationEnGros.style.opacity = '1'; 
+        setTimeout(() => {
+          citationEnGros.style.opacity = '0';
+          citationEnGros.textContent = '';
+        }, 15000);
+      }
+    });
+
+    function printRandomQuote() {
+      fetch('https://api.quotable.io/random')
+        .then(response => response.json())
+        .then(data => {
+          citationEnGros.textContent = `"${data.content}" - ${data.author}`;
+        })
+        .catch(error => console.error('Erreur lors de la récupération de la citation :', error));
+    }
+
+    function updateLeaderboard(data) {
+      const leaderboardList = document.getElementById('leaderboardList');
+      leaderboardList.innerHTML = ''; 
+
+      data.forEach((entry, index) => {
+        const listItem = document.createElement('li');
+        listItem.textContent = `${index + 1}. ${entry.name}: ${entry.score}`;
+        leaderboardList.appendChild(listItem);
+      });
+    }
+  fetch("https://2td56t-3001.csb.app/leaderboard")
+  .then(response => {
+    if (!response.ok) {
+      throw new Error("Erreur lors de la récupération du leaderboard");
+    }else{
+      console.log("here");
+    }
+    return response.json();
+  })
+  .then(data => {
+    console.log(data);
+  })
+  .catch(error => {
+    console.error("Erreura :", error);
+  });
+
+  </script>
+</body>
+
+</html>
